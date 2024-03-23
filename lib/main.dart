@@ -14,7 +14,7 @@ class Board extends StatelessWidget {
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.red,
-            title: const Center(child: Text("Tic Tac Toe Prototype 1")),
+            title: const Center(child: Text("Tic Tac Toe Prototype 2")),
           ),
           body: const TheBoard(),
         ),
@@ -22,6 +22,7 @@ class Board extends StatelessWidget {
     );
   }
 }
+
 class TheBoard extends StatefulWidget {
   const TheBoard({super.key});
   @override
@@ -29,41 +30,116 @@ class TheBoard extends StatefulWidget {
 }
 
 class _TheBoardState extends State<TheBoard> {
-
-  List<int> location = [1,2,3,4,5,6,7,8,9];
+  List<int> location = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   static const double sizeFont = 50;
+  bool disableGestures = false;
   String turnName = 'x';
   int turn = 1;
 
-  void applyInput(int index,int row, int col){
+  void applyInput(int index, int row, int col) {
+    if (game.setInput(location[index], turnName)) {
+      showAlert("Please pick another field", "Warning");
+    } else {
+      if (!game.checkResult()) {
+        showAlertWinner(context, game.getResult(), 'Result');
 
-    if(game.setInput(location[index], turnName)){
-      print('DEBUG: No Change'); //Alert Dialog that the user needs to input in a different location
-    }
-    else{
-      game.checkResult('Player $turn'); //A code that will stop the game once someone wins
-      if(turn == 1){
+      } else if (turn == 1) {
         turn = 2;
-      }
-      else{
+        makeTurn(turnName);
+      } else{
         turn = 1;
+        makeTurn(turnName);
       }
       setState(() {
         game.getInput(row, col);
         turn;
       });
-      makeTurn(turnName);
     }
   }
-  void makeTurn(String turnName){
-    if(turnName == 'x'){
+  void makeTurn(String turnName) {
+    if (turnName == 'x') {
       this.turnName = 'o';
-      print(this.turnName); //Debug
-    }
-    else if(turnName == 'o'){
+    } else if (turnName == 'o') {
       this.turnName = 'x';
-      print(this.turnName); //Debug
     }
+  }
+  void showAlertWinner(BuildContext context, String content, String title) {
+
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(content),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    turn = 1;
+                    turnName = 'x';
+                    game.resetGame();
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Restart'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    disableGestures = true;
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        });
+  }
+  void showAlert(String content,String title){
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(content),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        });
+  }
+
+  Expanded buildGesture(int index, int row, int col) {
+    return Expanded(
+      child: IgnorePointer(
+        ignoring: disableGestures,
+        child: GestureDetector(
+          onTap: () {
+            applyInput(index, row, col);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              height: double.infinity,
+              color: Colors.blue,
+              child: Center(
+                child: Text(
+                  game.getInput(row, col),
+                  style: const TextStyle(fontSize: sizeFont),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Expanded buildRow1() {
@@ -71,159 +147,35 @@ class _TheBoardState extends State<TheBoard> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                applyInput(0,0,0);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: double.infinity,
-                  color: Colors.blue,
-                  child:  Center(child: Text(game.getInput(0, 0), style: const TextStyle(fontSize: sizeFont),),),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                applyInput(1,0,1);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: double.infinity,
-                  color: Colors.blue,
-                  child: Center(child: Text(game.getInput(0, 1), style: const TextStyle(fontSize: sizeFont),),),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                applyInput(2,0,2);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: double.infinity,
-                  color: Colors.blue,
-                  child: Center(child: Text(game.getInput(0, 2), style: const TextStyle(fontSize: sizeFont),),),
-                ),
-              ),
-            ),
-          ),
+          buildGesture(0, 0, 0),
+          buildGesture(1, 0, 1),
+          buildGesture(2, 0, 2),
         ],
       ),
     );
   }
+
   Expanded buildRow2() {
     return Expanded(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                applyInput(3,1,0);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: double.infinity,
-                  color: Colors.blue,
-                  child: Center(child: Text(game.getInput(1, 0), style: const TextStyle(fontSize: sizeFont),),),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                applyInput(4,1,1);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: double.infinity,
-                  color: Colors.blue,
-                  child: Center(child: Text(game.getInput(1, 1), style: const TextStyle(fontSize: sizeFont),),),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                applyInput(5,1,2);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: double.infinity,
-                  color: Colors.blue,
-                  child: Center(child: Text(game.getInput(1, 2), style: const TextStyle(fontSize: sizeFont),),),
-                ),
-              ),
-            ),
-          ),
+          buildGesture(3, 1, 0),
+          buildGesture(4, 1, 1),
+          buildGesture(5, 1, 2),
         ],
       ),
     );
   }
+
   Expanded buildRow3() {
     return Expanded(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                applyInput(6,2,0);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: double.infinity,
-                  color: Colors.blue,
-                  child: Center(child: Text(game.getInput(2, 0), style: const TextStyle(fontSize: sizeFont),),),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                applyInput(7,2,1);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: double.infinity,
-                  color: Colors.blue,
-                  child: Center(child: Text(game.getInput(2, 1), style: const TextStyle(fontSize: sizeFont),),),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                applyInput(8,2,2);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: double.infinity,
-                  color: Colors.blue,
-                  child: Center(child: Text(game.getInput(2, 2), style: const TextStyle(fontSize: sizeFont),),),
-                ),
-              ),
-            ),
-          ),
+          buildGesture(6, 2, 0),
+          buildGesture(7, 2, 1),
+          buildGesture(8, 2, 2),
         ],
       ),
     );
@@ -235,7 +187,12 @@ class _TheBoardState extends State<TheBoard> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(child: Text("Player $turn", style: const TextStyle(fontSize: sizeFont - 25),),),
+          Center(
+            child: Text(
+              "Player $turn",
+              style: const TextStyle(fontSize: sizeFont - 25),
+            ),
+          ),
           buildRow1(),
           buildRow2(),
           buildRow3(),

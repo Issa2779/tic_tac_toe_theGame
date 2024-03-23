@@ -1,22 +1,32 @@
-class TicTacToe{
-
-  static final List<List<String>> _board = [
-    ['','',''],
-    ['','',''],
-    ['','',''],
+class TicTacToe {
+  static List<List<String>> _board = [
+    ['', '', ''],
+    ['', '', ''],
+    ['', '', ''],
   ];
   static const String _x = 'x';
   static const String _o = 'o';
-
+  static late String _result;
   TicTacToe();
-  
-  String getInput(int row, int col){
+
+  void resetGame() {
+    _board = [
+      ['', '', ''],
+      ['', '', ''],
+      ['', '', ''],
+    ];
+  }
+
+  String getInput(int row, int col) {
     return _board[row][col];
   }
-  
-  bool setInput(int input, String xo){
 
-    switch(input){
+  String getResult() {
+    return _result;
+  }
+
+  bool setInput(int input, String xo) {
+    switch (input) {
       case 1:
         return _inputValidate(xo, 0, 0);
       case 2:
@@ -40,22 +50,17 @@ class TicTacToe{
     }
     return true;
   }
+
   bool _inputValidate(String xo, int row, int col) {
-    if (_board[row][col] == _x || _board[row][col] == _o)
-    {
-      print("DEBUG: Another Location");
+    if (_board[row][col] == _x || _board[row][col] == _o) {
       return true;
-    }
-    else {
+    } else {
       _board[row][col] = xo;
-      print('DEBUG: Assigned');
       return false;
     }
   }
-  void _winnerAnnounce(String name) {
-   print("DEBUG: $name is the Winner");
-  }
-  bool checkResult(String name) {
+
+  bool checkResult() {
     int countX = 0;
     int countO = 0;
 
@@ -64,13 +69,14 @@ class TicTacToe{
       if (_board[i][i] == _x) {
         countX++;
         if (countX == 3) {
-          _winnerAnnounce(name);
+          //showAlertWinner(context,'Player 1 Wins', '_result');
+          _result = 'Player 1 Wins';
           return false;
         }
       } else if (_board[i][i] == _o) {
         countO++;
         if (countO == 3) {
-          _winnerAnnounce(name);
+          _result = 'Player 2 Wins';
           return false;
         }
       }
@@ -83,13 +89,13 @@ class TicTacToe{
       if (_board[i][j] == _x) {
         countX++;
         if (countX == 3) {
-          _winnerAnnounce(name);
+          _result = 'Player 1 Wins';
           return false;
         }
       } else if (_board[i][j] == _o) {
         countO++;
         if (countO == 3) {
-          _winnerAnnounce(name);
+          _result = 'Player 2 Wins';
           return false;
         }
       }
@@ -103,13 +109,13 @@ class TicTacToe{
         if (_board[i][j] == _x) {
           countX++;
           if (countX == 3) {
-            _winnerAnnounce(name);
+            _result = 'Player 1 Wins';
             return false;
           }
         } else if (_board[i][j] == _o) {
           countO++;
           if (countO == 3) {
-            _winnerAnnounce(name);
+            _result = 'Player 2 Wins';
             return false;
           }
         }
@@ -123,13 +129,13 @@ class TicTacToe{
         if (_board[i][j] == _x) {
           countX++;
           if (countX == 3) {
-            _winnerAnnounce(name);
+            _result = 'Player 1 Wins';
             return false;
           }
         } else if (_board[i][j] == _o) {
           countO++;
           if (countO == 3) {
-            _winnerAnnounce(name);
+            _result = 'Player 2 Wins';
             return false;
           }
         }
@@ -147,13 +153,11 @@ class TicTacToe{
         }
       }
     }
-
     if (countD == 9) {
-      print("DEBUG: Draw");
+      _result = 'It is a Draw';
       return false;
     }
 
     return true;
   }
-
 }
